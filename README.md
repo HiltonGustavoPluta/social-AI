@@ -31,6 +31,8 @@ npm install
 Crie um arquivo .env.local na raiz do projeto e adicione as seguintes chaves:
 
 DATABASE_URL="sua_url_do_postgresql"
+NEXT_PUBLIC_SUPABASE_URL=""
+NEXT_PUBLIC_SUPABASE_ANON_KEY=""
 OPENAI_API_KEY="sua_chave_openai"
 GOOGLE_CLIENT_ID="seu_google_client_id"
 GOOGLE_CLIENT_SECRET="seu_google_client_secret"
