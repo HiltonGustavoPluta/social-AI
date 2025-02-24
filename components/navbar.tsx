@@ -7,6 +7,7 @@ import Link from "next/link"
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import Image from "next/image"
 
 
 export default function Navbar() {
@@ -25,7 +26,7 @@ export default function Navbar() {
     <nav className="border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <MessageSquarePlus className="h-6 w-6" />
+          <Image src="logo.png" alt="Logo Hilton Gustavo" width={70} height={40} />
           <span className="font-bold text-xl">SocialAI</span>
         </Link>
         

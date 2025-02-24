@@ -7,7 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.5",
@@ -15,6 +19,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@next/swc-wasm-nodejs": "13.5.1",
     "@prisma/client": "^6.3.0",
+    "@prisma/extension-pulse": "^1.2.2",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -56,6 +61,7 @@
     "encoding": "^0.1.13",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.446.0",
     "next": "13.5.1",
@@ -78,6 +84,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.12.0",
+    "prettier": "^3.5.1",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "prisma": "^6.3.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"

@@ -4,9 +4,11 @@ import { getAuthor, getPosts } from "@/app/_actions/get-posts"
 import { formatTimeAgo } from "@/app/_helper/formatDate"
 import { createClient } from "@/app/utils/supabase/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Post } from "@prisma/client"
 import { useEffect, useState } from "react"
+import { Button } from "./ui/button"
+import { Heart, MessageCircle, Share2 } from "lucide-react"
 
 export default function PostFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -63,6 +65,22 @@ export default function PostFeed() {
           <CardContent className="p-4 pt-0">
             <p>{post.content}</p>
           </CardContent>
+          <CardFooter className="p-4 pt-0">
+            <div className="flex space-x-4">
+              <Button variant="ghost" size="sm">
+                <Heart className="mr-2 h-4 w-4" />
+                {post.likes}
+              </Button>
+              <Button variant="ghost" size="sm">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                {post.comments}
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Share2 className="mr-2 h-4 w-4" />
+                {post.shares}
+              </Button>
+            </div>
+          </CardFooter>
 
         </Card>
       ))}
