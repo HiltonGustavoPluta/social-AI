@@ -3,8 +3,11 @@
 import { db } from "@/lib/prisma";
 import { endOfDay, startOfDay } from "date-fns"
 
-export const getPosts = async () => {
+export const getPosts = async (authorId: string) => {
   const posts = await db.post.findMany({
+    where: { 
+      authorId: authorId,
+    },
     orderBy: {
       createdAt: 'desc'
     },

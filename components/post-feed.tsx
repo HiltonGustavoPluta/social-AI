@@ -9,24 +9,30 @@ import { Post } from "@prisma/client"
 import { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 import { Heart, MessageCircle, Share2 } from "lucide-react"
+import { useSession } from "next-auth/react"
 
 export default function PostFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   const supabase = createClient()
+    const { data } =  useSession()
+  
 
-  const fetchPosts = async () => {
-    const fetch = await getPosts()
+  const fetchPosts = async (authorId: string) => {
+    const fetch = await getPosts(authorId)
     setPosts(fetch)
   };
 
   useEffect(() => {
+    
+    if(!data?.user) return
+    const authorId = (data.user as any).id
 
-    fetchPosts()
+    fetchPosts(authorId)
 
     const channel = supabase
     .channel('realtime posts')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'Post' }, async (payload) => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'Post', filter: `authorId=eq.${authorId}` }, async (payload) => {
 
       if (payload.eventType === 'INSERT') {
        const author = await getAuthor(payload.new.authorId)
@@ -46,7 +52,7 @@ export default function PostFeed() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, []);
+  }, [data]);
 
   return (
     <div className="space-y-6">
@@ -59,7 +65,7 @@ export default function PostFeed() {
             </Avatar>
             <div>
               <h3 className="font-semibold">{post.author.name}</h3>
-               <p className="text-sm text-muted-foreground">@htgustavo · {formatTimeAgo(post.updatedAt)}</p>
+               <p className="text-sm text-muted-foreground">{formatTimeAgo(post.updatedAt)}</p>
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-0">
@@ -68,15 +74,15 @@ export default function PostFeed() {
           <CardFooter className="p-4 pt-0">
             <div className="flex space-x-4">
               <Button variant="ghost" size="sm">
-                <Heart className="mr-2 h-4 w-4" />
+                <Heart className="h-4 w-4" />
                 {post.likes}
               </Button>
               <Button variant="ghost" size="sm">
-                <MessageCircle className="mr-2 h-4 w-4" />
+                <MessageCircle className="h-4 w-4" />
                 {post.comments}
               </Button>
               <Button variant="ghost" size="sm">
-                <Share2 className="mr-2 h-4 w-4" />
+                <Share2 className="h-4 w-4" />
                 {post.shares}
               </Button>
             </div>
