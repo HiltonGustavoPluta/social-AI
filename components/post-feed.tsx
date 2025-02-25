@@ -1,15 +1,11 @@
 "use client"
 
-import { getAuthor, getPosts } from "@/app/_actions/get-posts"
 import { formatTimeAgo } from "@/app/_helper/formatDate"
-import { createClient } from "@/app/utils/supabase/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Post } from "@prisma/client"
-import { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 import { Heart, MessageCircle, Share2 } from "lucide-react"
-import { useSession } from "next-auth/react"
  
 interface PostFeedProps {
   posts: Post[]

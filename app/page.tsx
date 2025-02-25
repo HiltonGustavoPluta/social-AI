@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CreatePost from "@/components/create-post";
 import PostFeed from "@/components/post-feed";
 import { getAuthor, getPosts } from "./_actions/get-posts";
@@ -8,57 +8,68 @@ import { createClient } from "./utils/supabase/client";
 import { useSession } from "next-auth/react";
 
 export default function Home() {
-  const supabase = createClient();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
-  const { data } =  useSession()
-   
-  const fetchPosts = async (authorId: string) => {
-    setLoading(true)
-    const fetch = await getPosts(authorId)
-    setPosts(fetch)
-    setLoading(false)
-  };
-
+  const supabase = createClient();
+  const { data } = useSession();
+  const channelRef = useRef<any>(null);
 
   useEffect(() => {
-    
-    if(!data?.user) return
-    const authorId = (data.user as any).id
+    if (!data?.user) return;
 
-    fetchPosts(authorId)
+    const authorId = (data.user as any).id;
+
+    const fetchPosts = async () => {
+      setLoading(true);
+      const fetchedPosts = await getPosts(authorId);
+      setPosts(fetchedPosts.slice(0, 10));
+      setLoading(false);
+    };
+
+    fetchPosts();
+
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
 
     const channel = supabase
-    .channel('realtime posts')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'Post', filter: `authorId=eq.${authorId}` }, async (payload) => {
+      .channel("realtime-posts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Post", filter: `authorId=eq.${authorId}` },
+        async (payload) => {
+          if (payload.eventType === "INSERT") {
+            // 🔹 Buscar o autor separadamente
+            getAuthor(payload.new.authorId).then((author) => {
+              setPosts((current) => [{ ...payload.new, author }, ...current].slice(0, 10));
+            });
+          } else if (payload.eventType === "DELETE") {
+            setPosts((current) => current.filter((post) => post.id !== payload.old.id));
+          } else if (payload.eventType === "UPDATE") {
+            setPosts((current) =>
+              current.map((post) =>
+                post.id === payload.new.id ? { ...post, ...payload.new } : post
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
 
-      if (payload.eventType === 'INSERT') {
-       const author = await getAuthor(payload.new.authorId)
-       setPosts((current) => [{...payload.new, author } as any, ...current])
-      } else if (payload.eventType === 'DELETE') {
-        setPosts((current) => current.filter((post) => post.id !== payload.old.id))
-      } else if (payload.eventType === 'UPDATE') {
-        setPosts((current) =>
-          current.map((post) => (post.id === payload.new.id ? { ...post, ...payload.new } : post))
-        )
-      }
-    })
-    .subscribe((status) => {
-      console.log('Subscription status:', status)
-    })
+    channelRef.current = channel; // Armazena a referência do canal
 
     return () => {
-      supabase.removeChannel(channel)
-    }
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
+    };
   }, [data]);
-
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <CreatePost totalPosts={posts.length} />
 
-      { loading && <p className="text-center">Carregando posts...</p>}
+      {loading && <p className="text-center">Carregando posts...</p>}
       <PostFeed posts={posts} />
     </div>
   );
