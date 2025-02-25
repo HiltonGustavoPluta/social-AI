@@ -21,6 +21,7 @@ export default function Home() {
 
 
     useEffect(() => {
+      if (!data?.user) return;
       setLoading(true);
       fetchPosts();
     }, [data])
