@@ -8,7 +8,7 @@ import { newPost } from "@/app/_actions/new-post"
 import { signIn, useSession } from "next-auth/react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog"
 
-export default function CreatePost() {
+export default function CreatePost({ totalPosts }: { totalPosts: number}) {
   const [content, setContent] = useState<string>("")
   const [contentAI, setContentAI] = useState<string>("")
   const [isDialogOpen, setDialogIsOpen] = useState<boolean>(false)
@@ -42,7 +42,7 @@ export default function CreatePost() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if(!data?.user) return
+    if(!data?.user || totalPosts === 3) return
 
    await newPost({
       content: content,
@@ -62,7 +62,6 @@ export default function CreatePost() {
     return signIn('google')
   }
 
-
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,7 +74,7 @@ export default function CreatePost() {
                 Login
               </Button>
             </div>
-          ) : (
+          ) : totalPosts < 3 ? (
             <div className="p-4 space-y-4">
               <Textarea
                 placeholder="O que deseja publicar?"
@@ -83,6 +82,9 @@ export default function CreatePost() {
                 onChange={(e) => setContent(e.target.value)}
                 className="min-h-[120px]"
               />
+              <div className="flex flex-col items-center gap-4 p-2 bg-red-400 bg-opacity-25 border border-red-600 rounded-md">
+                <p className="text-sm text-red-600">Você pode criar até 3 publicações! </p>
+              </div>
               <div className="flex justify-between">
                 <Button
                   type="button"
@@ -96,9 +98,13 @@ export default function CreatePost() {
                 <Button type="submit" disabled={!content}>
                   Publicar
                 </Button>
+                
               </div>
             </div>
-          )}
+          ) : <div className="flex flex-col items-center gap-4 p-5">
+                <p>Você atingiu o limite de publicações para esta conta.</p>
+              </div>
+          }
         </div>
       </form>
       <AlertDialog  open={isDialogOpen} onOpenChange={setDialogIsOpen}>

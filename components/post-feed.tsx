@@ -10,49 +10,12 @@ import { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 import { Heart, MessageCircle, Share2 } from "lucide-react"
 import { useSession } from "next-auth/react"
+ 
+interface PostFeedProps {
+  posts: Post[]
+}
 
-export default function PostFeed() {
-  const [posts, setPosts] = useState<Post[]>([]);
-
-  const supabase = createClient()
-    const { data } =  useSession()
-  
-
-  const fetchPosts = async (authorId: string) => {
-    const fetch = await getPosts(authorId)
-    setPosts(fetch)
-  };
-
-  useEffect(() => {
-    
-    if(!data?.user) return
-    const authorId = (data.user as any).id
-
-    fetchPosts(authorId)
-
-    const channel = supabase
-    .channel('realtime posts')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'Post', filter: `authorId=eq.${authorId}` }, async (payload) => {
-
-      if (payload.eventType === 'INSERT') {
-       const author = await getAuthor(payload.new.authorId)
-       setPosts((current) => [{...payload.new, author } as any, ...current])
-      } else if (payload.eventType === 'DELETE') {
-        setPosts((current) => current.filter((post) => post.id !== payload.old.id))
-      } else if (payload.eventType === 'UPDATE') {
-        setPosts((current) =>
-          current.map((post) => (post.id === payload.new.id ? { ...post, ...payload.new } : post))
-        )
-      }
-    })
-    .subscribe((status) => {
-      console.log('Subscription status:', status)
-    })
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [data]);
+export default function PostFeed( { posts }: PostFeedProps) {
 
   return (
     <div className="space-y-6">
