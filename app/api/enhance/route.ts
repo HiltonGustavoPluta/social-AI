@@ -7,11 +7,12 @@ export async function POST(req: Request) {
   try {
     const { text: improvedText } = await generateText({
       model: openai("gpt-4o-mini"),
-      prompt: `Please enhance this social media post: ${content}`,
+      prompt: `Por favor, melhore esta postagem na mídia social: ${content}`,
       system:
-        "You are a helpful assistant that improves social media posts. Make posts more engaging, clear, and impactful while maintaining the original message and tone. Add relevant hashtags when appropriate.",
+        "Você é um assistente útil que melhora as postagens nas redes sociais. Torne as postagens mais envolventes, claras e impactantes, mantendo a mensagem e o tom originais. Adicione hashtags relevantes quando apropriado. Devolva apenas o conteudo da publicação",
     })
     
+    console.log(improvedText)
 
     return Response.json(improvedText)
   } catch (error) {
