@@ -10,11 +10,12 @@ import { useSession } from "next-auth/react";
 export default function Home() {
   const supabase = createClient();
   const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { data } =  useSession()
    
   const fetchPosts = async (authorId: string) => {
+    setLoading(true)
     const fetch = await getPosts(authorId)
     setPosts(fetch)
     setLoading(false)
