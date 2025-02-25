@@ -8,7 +8,13 @@ import { newPost } from "@/app/_actions/new-post"
 import { signIn, useSession } from "next-auth/react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog"
 
-export default function CreatePost({ totalPosts }: { totalPosts: number}) {
+
+interface CreatePostProps {
+  totalPosts: number;
+  onCreate: () => void;
+}
+
+export default function CreatePost({ totalPosts, onCreate }: CreatePostProps) {
   const [content, setContent] = useState<string>("")
   const [contentAI, setContentAI] = useState<string>("")
   const [isDialogOpen, setDialogIsOpen] = useState<boolean>(false)
@@ -51,6 +57,7 @@ export default function CreatePost({ totalPosts }: { totalPosts: number}) {
 
     setContent("")
     setContentAI("")
+    onCreate()
   }
 
   const handleOnConfirm = () => {
